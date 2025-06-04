@@ -18,13 +18,22 @@
                         <div class="row">{{ header.text }}</div>
                     </div>
                 </div>
-                <div ref="tableBody" class="table__body" :style="`display: grid; grid-template-columns: ${gridColumnsValue}; grid-column-start: 1; grid-column-end: 6;`">
+                <div ref="tableBody" class="table__body"
+                    :style="`display: grid; grid-template-columns: ${gridColumnsValue}; grid-column: 1 / 6;`"
+                    @scroll="handleScroll"
+                >
                     <div v-for="(header) in headers" class="column">
                         <div v-for="(item, index) in items" :class="`row ${selectedIndex === index ? 'selected' : ''}`"
                             v-on:click="handleSelect(index)">
                             {{ item[header.value] }}
                         </div>
                     </div>
+                </div>
+                <div class="scrollbar">
+                    <div class="thumb"
+                        :style="{ height: thumbHeight + 'px', top: thumbTop + 'px' }"
+                        @mousedown="startDrag"
+                    ></div>
                 </div>
             </div>
 
