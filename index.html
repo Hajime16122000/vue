@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vue Project</title>
+
+    <link rel="stylesheet" href="css/main.css">
+</head>
+
+<body>
+    <div id="app">
+        <div class="container">
+            <div :class="`table ${componentClass}`">
+                <div class="table__header" :style="`display: grid; grid-template-columns: ${gridColumnsValue};`">
+                    <div v-for="(header) in headers" class="column">
+                        <div class="row">{{ header.text }}</div>
+                    </div>
+                </div>
+                <div ref="tableBody" class="table__body" :style="`display: grid; grid-template-columns: ${gridColumnsValue}; grid-column-start: 1; grid-column-end: 6;`">
+                    <div v-for="(header) in headers" class="column">
+                        <div v-for="(item, index) in items" :class="`row ${selectedIndex === index ? 'selected' : ''}`"
+                            v-on:click="handleSelect(index)">
+                            {{ item[header.value] }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="detail">
+                <h3 class="detail__title">Detail</h3>
+                <div class="form">
+                    <div class="form__input">
+                        <label for="userName">User Name</label>
+                        <input v-model="detailData.userName" class="detail__input" type="text" id="userName">
+                    </div>
+                    <div class="form__input">
+                        <label for="age">Age</label>
+                        <input v-model="detailData.age" class="detail__input" type="text" id="age">
+                    </div>
+                    <div class="form__input">
+                        <label for="gender">Gender</label>
+                        <input v-model="detailData.gender" class="detail__input" type="text" id="gender">
+                    </div>
+                    <div class="form__input">
+                        <label for="dateOfBirth">Date Of Birth</label>
+                        <input v-model="detailData.dateOfBirth" class="detail__input" type="text" id="dateOfBirth">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="module" src="app.js"></script>
+</body>
+
+</html>

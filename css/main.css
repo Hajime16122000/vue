@@ -1,0 +1,88 @@
+@import "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap";
+/* FORM DETAIL */
+body {
+  font-family: "Open Sans", sans-serif;
+  background: #000;
+  color: #fff;
+  background: #000;
+  color: #fff;
+}
+body .container {
+  display: flex;
+  flex-direction: column;
+  width: 750px;
+  background: #5c3333;
+  padding: 10px;
+  margin: 10px auto;
+  gap: 12px;
+}
+body .container .table {
+  border: 1px solid #a1a1af;
+}
+body .container .table .table__header {
+  background-color: #a1a1af;
+}
+body .container .table .table__header::-webkit-scrollbar {
+  opacity: 0;
+}
+body .container .table .table__body {
+  height: 400px;
+  overflow-y: auto;
+  grid-column-start: 1;
+  grid-column-end: 6;
+}
+body .container .table .table__body::-webkit-scrollbar {
+  display: none;
+}
+body .container .table .column {
+  width: 100%;
+}
+body .container .table .column .row {
+  border-bottom: 1px #a1a1af solid;
+  padding: 5px;
+  margin: auto;
+}
+body .container .table .column .row.selected {
+  background: darkcyan;
+}
+body .container .table.lesser .table__header::-webkit-scrollbar {
+  display: none;
+}
+body .container .table.lesser .table__body::-webkit-scrollbar {
+  display: none;
+}
+body .container .detail {
+  position: relative;
+  border: 1px solid #a1a1af;
+  padding: 20px 10px 10px;
+}
+body .container .detail .detail__title {
+  position: absolute;
+  top: -12px;
+  padding: 0 10px;
+  margin: 0;
+  background: #5c3333;
+}
+body .container .detail .form {
+  display: grid;
+  grid-template-columns: auto auto auto;
+  gap: 12px;
+}
+body .container .detail .form .form__input {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: auto;
+}
+body .container .detail .form .form__input .detail__input {
+  height: 24px;
+  border: none;
+  outline: none;
+  padding: 0 10px;
+  background: #a1a1af;
+  color: #fff;
+}
+body .container .detail .form .form__input .detail__input:focus {
+  background: #fff;
+  color: black;
+}/*# sourceMappingURL=main.css.map */
