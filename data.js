@@ -42,9 +42,9 @@ export const getListItems = (length) => {
 };
 
 export const headers = [
-    { text: 'User ID', value: 'userId', width: '100px' },
-    { text: 'User Name', value: 'userName' },
-    { text: 'Age', value: 'age', width: '50px' },
-    { text: 'Gender', value: 'gender', width: '80px' },
-    { text: 'Date of Birth', value: 'dateOfBirth', width: '150px' }
+    { text: 'User ID', value: 'userId', width: '100px', sort: '' },
+    { text: 'User Name', value: 'userName', sort: '' },
+    { text: 'Age', value: 'age', width: '80px', sort: '' },
+    { text: 'Gender', value: 'gender', width: '120px', sort: '' },
+    { text: 'Date of Birth', value: 'dateOfBirth', width: '150px', sort: '' }
 ];

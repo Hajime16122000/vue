@@ -5,6 +5,7 @@ const app = createApp({
   data() {
     return {
       items: [],
+      originItems: [],
       headers: [],
       selectedIndex: -1,
       selectedItem: {},
@@ -17,8 +18,14 @@ const app = createApp({
     };
   },
   computed: {
-    componentClass() {
-      return this.isLesserData ? 'lesser' : '';
+    scrollConfig() {
+      const tableBody = this.$refs.tableBody;
+
+      return {
+        scrollHeight: tableBody.scrollHeight, // Tổng chiều cao nội dung cuộn
+        clientHeight: tableBody.clientHeight, // Chiều cao hiển thị của vùng cuộn
+        scrollbarHeight: tableBody.offsetHeight - 20, // Chiều cao của rãnh scrollbar (scrollbar div)
+      };
     },
     gridColumnsValue() {
       const colsWidth = this.headers.map(header => header.width || 'auto');
@@ -38,7 +45,9 @@ const app = createApp({
     },
   },
   created() {
-    this.items = [...getListItems(30)];
+    const initItems = [...getListItems(30)];
+    this.items = [ ...initItems ];
+    this.originItems = [ ...initItems ];
     this.headers = [...headers];
   },
   mounted() {
@@ -72,16 +81,62 @@ const app = createApp({
         this.selectedItem = this.items.find((item, idx) => idx === index) || {};
       }
     },
+    handleSort(clickedIndex) {
+      this.selectedIndex = -1;
+      this.headers = this.headers.map((header, index) => {
+        if (clickedIndex === index) {
+          if (header.sort === 'asc') {
+            return { ...header, sort: 'desc' };
+          } else if (header.sort === 'desc') {
+            return { ...header, sort: '' };
+          } else {
+            return { ...header, sort: 'asc' };
+          }
+        } else {
+          return { ...header, sort: '' };
+        }
+      });
+
+      const colName = this.headers[clickedIndex].value;
+      const sortDirection = this.headers[clickedIndex].sort;
+      if (sortDirection) {
+        this.sortColumn(colName, sortDirection);
+      } else {
+        this.items = [ ...this.originItems ];
+      }
+    },
+    sortColumn(columnName, sortDirection) {
+      const sortFactor = sortDirection === 'asc' ? 1 : -1;
+
+      const sortItems = this.items.sort((itemA, itemB) => {
+        const valueA = itemA[columnName];
+        const valueB = itemB[columnName];
+
+        let comparison = 0;
+        if (typeof valueA === 'string' && typeof valueB === 'string') {
+          // Sắp xếp chuỗi không phân biệt chữ hoa/thường, hoặc theo ngôn ngữ cụ thể
+          comparison = valueA.localeCompare(valueB, undefined, { sensitivity: 'base' });
+        } else {
+          // Sắp xếp số hoặc các kiểu dữ liệu có thể so sánh trực tiếp
+          if (valueA > valueB) {
+            comparison = 1;
+          } else if (valueA < valueB) {
+            comparison = -1;
+          }
+        }
+
+        // Áp dụng hệ số sắp xếp
+        return comparison * sortFactor;
+      });
+
+      this.items = [ ...sortItems ];
+    },
     updateThumb() {
       const tableBody = this.$refs.tableBody;
       if (!tableBody) return;
 
-      const scrollHeight = tableBody.scrollHeight; // Tổng chiều cao nội dung cuộn
-      const clientHeight = tableBody.clientHeight; // Chiều cao hiển thị của vùng cuộn
-
       // Tính chiều cao của thumb
-      this.thumbHeight = (clientHeight / scrollHeight) * (tableBody.offsetHeight - 20);
-      this.thumbHeight = Math.max(this.thumbHeight, 20); // Đảm bảo thumb không quá nhỏ
+      this.thumbHeight = this.computeThumbHeight(this.scrollConfig)
 
       // Cập nhật vị trí của thumb dựa trên scrollbar
       this.handleScroll();
@@ -91,16 +146,11 @@ const app = createApp({
       if (!tableBody) return;
 
       const scrollTop = tableBody.scrollTop;
-      const scrollHeight = tableBody.scrollHeight;
-      const clientHeight = tableBody.clientHeight;
-      const scrollbarHeight = tableBody.offsetHeight - 20; // Chiều cao của rãnh scrollbar (scrollbar div)
 
       // Tính toán vị trí của thumb
       // thumbTop = (scrollTop / (scrollHeight - clientHeight)) * (scrollbarHeight - this.thumbHeight);
       // Đảm bảo thumbTop không vượt quá rãnh
-      this.thumbTop = (scrollTop / (scrollHeight - clientHeight)) * (scrollbarHeight - this.thumbHeight);
-      this.thumbTop = Math.min(this.thumbTop, scrollbarHeight - this.thumbHeight);
-      this.thumbTop = Math.max(0, this.thumbTop);
+      this.thumbTop = this.computeScrollThumbTop(scrollTop, this.thumbHeight, this.scrollConfig);
     },
     startDrag(e) {
       this.isDragging = true;
@@ -119,18 +169,40 @@ const app = createApp({
       const scrollRange = scrollbarHeight - this.thumbHeight; // Phạm vi di chuyển của thumb
 
       // Tính toán vị trí mới của thumb
-      let newThumbTop = this.startThumbTop + deltaY;
-      newThumbTop = Math.min(Math.max(0, newThumbTop), scrollRange); // Giới hạn trong phạm vi
-
-      this.thumbTop = newThumbTop;
+      this.thumbTop = this.computeDragThumbTop(scrollRange, this.startThumbTop, deltaY);
 
       // Đồng bộ hóa vị trí cuộn của tableBody với vị trí của thumb
-      const scrollHeight = tableBody.scrollHeight;
-      const clientHeight = tableBody.clientHeight;
-      tableBody.scrollTop = (newThumbTop / scrollRange) * (scrollHeight - clientHeight);
+      tableBody.scrollTop = this.computeDragScrollTop(scrollRange, this.thumbTop, this.scrollConfig);
     },
     stopDrag() {
       this.isDragging = false;
+    },
+    computeDragScrollTop(scrollRange, thumbTop, scrollConfig) {
+      const { scrollHeight, clientHeight } = scrollConfig;
+      return (thumbTop / scrollRange) * (scrollHeight - clientHeight);
+    },
+    computeScrollThumbTop(scrollTop, thumbHeight, scrollConfig) {
+      const { scrollHeight, clientHeight, scrollbarHeight } = scrollConfig;
+
+      let newThumbTop = (scrollTop / (scrollHeight - clientHeight)) * (scrollbarHeight - thumbHeight);
+      newThumbTop = Math.max(0, Math.min(newThumbTop, scrollbarHeight - thumbHeight));
+
+      return newThumbTop;
+    },
+    computeDragThumbTop(scrollRange, startThumbTop, deltaY) {
+      let newThumbTop = startThumbTop + deltaY;
+      newThumbTop = Math.min(Math.max(0, newThumbTop), scrollRange); // Giới hạn trong phạm vi
+
+      return newThumbTop;
+    },
+    computeThumbHeight({ clientHeight, scrollHeight, scrollbarHeight }) {
+      let thumbHeight = (clientHeight / scrollHeight) * scrollbarHeight;
+      thumbHeight = Math.max(thumbHeight, 20); // Đảm bảo thumb không quá nhỏ
+
+      return thumbHeight;
+    },
+    getSortIcon(isAsc) {
+      return isAsc === 'asc' ? '/public/images/ic_asc_sort.svg' : '/public/images/ic_desc_sort.svg';
     },
     isEmpty(obj) {
       return Object.keys(obj).length === 0 && obj.constructor === Object;

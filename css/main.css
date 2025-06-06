@@ -54,19 +54,42 @@ body .container .table .scrollbar .thumb {
   border-radius: 5px;
   cursor: grab;
 }
+body .container .table .table__header .cell {
+  cursor: pointer;
+}
+body .container .table .table__header .cell.idx::before {
+  content: "";
+  position: absolute;
+  top: 5px;
+  height: 21px;
+  right: 0;
+  border: 1px solid;
+}
 body .container .table .column {
   width: 100%;
 }
-body .container .table .column .row {
+body .container .table .column .cell {
+  position: relative;
+  display: flex;
   border-bottom: 1px #a1a1af solid;
   padding: 5px;
   margin: auto;
   -webkit-user-select: none;
      -moz-user-select: none;
           user-select: none;
+  justify-content: space-between;
+  align-items: center;
 }
-body .container .table .column .row.selected {
+body .container .table .column .cell.selected {
   background: darkcyan;
+}
+body .container .table .column .cell .sort {
+  display: flex;
+  align-items: center;
+}
+body .container .table .column .cell .sort img {
+  width: 20px;
+  height: 20px;
 }
 body .container .table.lesser .table__header::-webkit-scrollbar {
   display: none;

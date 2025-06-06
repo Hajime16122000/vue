@@ -12,28 +12,31 @@
 <body>
     <div id="app">
         <div class="container">
-            <div :class="`table ${componentClass}`">
+            <div class="table">
                 <div class="table__header" :style="`display: grid; grid-template-columns: ${gridColumnsValue};`">
-                    <div v-for="(header) in headers" class="column">
-                        <div class="row">{{ header.text }}</div>
+                    <div v-for="(header, index) in headers" class="column">
+                        <div :class="`cell ${index < headers.length - 1 ? 'idx' : ''}`" @click="handleSort(index)">
+                            {{ header.text }}
+
+                            <span class="sort">
+                                <img v-if="header.sort" :src="getSortIcon(header.sort)" alt="sort">
+                            </span>
+                        </div>
                     </div>
                 </div>
                 <div ref="tableBody" class="table__body"
                     :style="`display: grid; grid-template-columns: ${gridColumnsValue}; grid-column: 1 / 6;`"
-                    @scroll="handleScroll"
-                >
+                    @scroll="handleScroll">
                     <div v-for="(header) in headers" class="column">
-                        <div v-for="(item, index) in items" :class="`row ${selectedIndex === index ? 'selected' : ''}`"
-                            v-on:click="handleSelect(index)">
+                        <div v-for="(item, index) in items" :class="`cell ${selectedIndex === index ? 'selected' : ''}`"
+                            @click="handleSelect(index)">
                             {{ item[header.value] }}
                         </div>
                     </div>
                 </div>
-                <div class="scrollbar">
-                    <div class="thumb"
-                        :style="{ height: thumbHeight + 'px', top: thumbTop + 'px' }"
-                        @mousedown="startDrag"
-                    ></div>
+                <div v-if="!isLesserData" class="scrollbar">
+                    <div class="thumb" :style="{ height: thumbHeight + 'px', top: thumbTop + 'px' }"
+                        @mousedown="startDrag"></div>
                 </div>
             </div>
 

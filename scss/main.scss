@@ -65,17 +65,48 @@ body {
                 }
             }
 
+            & .table__header {
+                & .cell {
+                    cursor: pointer;
+
+                    &.idx {
+                        &::before {
+                            content: "";
+                            position: absolute;
+                            top: 5px;
+                            height: 21px;
+                            right: 0;
+                            border: 1px solid;
+                        }
+                    }
+                }
+            }
+
             & .column {
                 width: 100%;
 
-                .row {
+                .cell {
+                    position: relative;
+                    display: flex;
                     border-bottom: 1px #a1a1af solid;
                     padding: 5px;
                     margin: auto;
                     user-select: none;
+                    justify-content: space-between;
+                    align-items: center;
 
                     &.selected {
                         background: darkcyan;
+                    }
+
+                    .sort {
+                        display: flex;
+                        align-items: center;
+
+                        & img {
+                            width: 20px;
+                            height: 20px;
+                        }
                     }
                 }
             }
